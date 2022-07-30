@@ -27,6 +27,7 @@ function START_RECORDING({ index, video, audio, frameSize, audioBitsPerSecond, v
 		(stream) => {
 			if (!stream) return;
 
+			var chunks=[]
 			recorder = new MediaRecorder(stream, {
 				ignoreMutedMedia: true,
 				audioBitsPerSecond,
@@ -40,7 +41,7 @@ function START_RECORDING({ index, video, audio, frameSize, audioBitsPerSecond, v
 			recorder.ondataavailable = async function (event) {
 				if (event.data.size > 0) {
 					const buffer = await event.data.arrayBuffer();
-					const data = arrayBufferToString(buffer);
+					const data = new Blob(buffer, { type: "video/webm; codecs=vp9" });;
 
 					if (window.sendData) {
 						window.sendData({
@@ -55,10 +56,11 @@ function START_RECORDING({ index, video, audio, frameSize, audioBitsPerSecond, v
 			recorder.onstop = function () {
 				try {
 					const tracks = stream.getTracks();
-
 					tracks.forEach(function (track) {
 						track.stop();
 					});
+
+
 				} catch (error) {}
 			};
 			stream.oninactive = () => {
@@ -78,21 +80,6 @@ function STOP_RECORDING(index) {
 	recorders[index].stop();
 }
 
-function arrayBufferToString(buffer) {
-	// Convert an ArrayBuffer to an UTF-8 String
 
-	var bufView = new Uint8Array(buffer);
-	var length = bufView.length;
-	var result = "";
-	var addition = Math.pow(2, 8) - 1;
-
-	for (var i = 0; i < length; i += addition) {
-		if (i + addition > length) {
-			addition = length - i;
-		}
-		result += String.fromCharCode.apply(null, bufView.subarray(i, i + addition));
-	}
-	return result;
-}
 
 
