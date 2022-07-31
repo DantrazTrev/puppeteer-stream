@@ -106,7 +106,7 @@ export async function launch(
 	await browser.videoCaptureExtension.exposeFunction(
 		"sendData",
 		(opts: any) => {
-			const data = Buffer.from(str2ab(opts.data));
+			const data = Buffer.from(opts.data);
 			// @ts-ignore
 			browser.encoders.get(opts.id).push(data);
 		}
@@ -166,14 +166,4 @@ export async function getStream(page: Page, opts: getStreamOptions) {
 	return encoder;
 }
 
-function str2ab(str: any) {
-	// Convert a UTF-8 String to an ArrayBuffer
 
-	var buf = new ArrayBuffer(str.length); // 1 byte for each char
-	var bufView = new Uint8Array(buf);
-
-	for (var i = 0, strLen = str.length; i < strLen; i++) {
-		bufView[i] = str.charCodeAt(i);
-	}
-	return buf;
-}
